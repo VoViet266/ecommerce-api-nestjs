@@ -12,5 +12,6 @@ import { MongooseModule } from '@nestjs/mongoose';
       { name: Permission.name, schema: PermissionsSchemas },
     ]),
   ],
+  exports: [PermissionsService],
 })
 export class PermissionsModule {}

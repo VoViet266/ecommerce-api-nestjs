@@ -2,7 +2,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
-import { Product, ProductDocument } from './schemas/product.schemas';
+import { Product, ProductDocument, Variant } from './schemas/product.schemas';
 import { IUser } from 'src/user/interface/user.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import aqp from 'api-query-params';
@@ -23,9 +23,16 @@ export class ProductService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
-  create(createProductDto: CreateProductDto, user: IUser) {
+  async create(createProductDto: CreateProductDto, user: IUser) {
+    // Xóa toàn bộ cache liên quan đến các sản phẩm trước khi tạo mới
+    await this.cacheManager.reset();
+    const totalStock = createProductDto.variant.reduce(
+      (acc, variant) => acc + variant.stock,
+      0,
+    );
     return this.productModel.create({
       ...createProductDto,
+      stock: totalStock,
       createdBy: {
         id: user._id,
         email: user.email,
@@ -39,7 +46,7 @@ export class ProductService {
     delete filter.limit;
 
     const offset = (currentPage - 1) * limit;
-    const defaultLimit = limit || 20;
+    const defaultLimit = limit;
 
     const cacheKey = `product-${currentPage}-${limit}-${
       filter.category || ''
@@ -101,6 +108,14 @@ export class ProductService {
               description: { $arrayElemAt: ['$brand.description', 0] },
               logo: { $arrayElemAt: ['$brand.logo', 0] },
             },
+
+            variant: {
+              _id: 1,
+              color: 1,
+              size: 1,
+              stock: 1,
+              price: 1,
+            },
           },
         },
         {
@@ -150,8 +165,6 @@ export class ProductService {
     if (cached) {
       return cached; // Trả về từ cache
     }
-    // Nếu không có trong cache thì lấy từ database
-
     const existingProduct = await this.productModel
       .findById(id)
       .populate(['categoryId', 'brandId'])
@@ -174,16 +187,22 @@ export class ProductService {
         `Sản phẩm với ID ${id} không tồn tại trong database`,
       );
     }
-    return this.productModel.updateOne(
+
+    const result = await this.productModel.updateOne(
       { _id: id },
       {
         ...updateProductDto,
-        updatedBy: {
-          id: user._id,
-          email: user.email,
-        },
+        // updatedBy: {
+        //   id: user._id,
+        //   email: user.email,
+        // },
       },
     );
+
+    // Xóa toàn bộ cache liên quan đến sản phẩm
+    await this.cacheManager.reset();
+
+    return result;
   }
 
   async remove(id: string) {
@@ -193,7 +212,9 @@ export class ProductService {
         `Product with ID ${id} not found in the database`,
       );
     }
-    await this.cacheManager.del(`product-${id}`);
+    // Xóa toàn bộ cache liên quan đến sản phẩm
+    await this.cacheManager.reset();
+    // await this.cacheManager.del(`product-${id}`);
     return this.productModel.deleteOne({ _id: id });
   }
 }

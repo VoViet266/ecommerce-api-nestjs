@@ -6,7 +6,6 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Observable } from 'rxjs';
 import { RolesUser } from '../../constant/roles.enum';
 
 @Injectable()
@@ -23,10 +22,17 @@ export class RolesGuard implements CanActivate {
     }
     const request = context.switchToHttp().getRequest();
     const user = request.user;
+    // Kiểm tra người dùng đã đăng nhập chưa
+
+    if (!user || !user.role) {
+      throw new ForbiddenException(
+        'Bạn không có quyền truy cập vào tài nguyên này',
+      );
+    }
 
     // Kiểm tra quyền người dùng có khớp với roles yêu cầu
-    const hasRole = roles.some((role) => user.role.includes(role));
-    if (!hasRole || !user || !user.role) {
+    const hasRole = roles.some((role) => user.role.roleName.includes(role));
+    if (!hasRole) {
       throw new ForbiddenException(
         'Bạn không có quyền truy cập vào tài nguyên này',
       );

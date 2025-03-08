@@ -11,8 +11,14 @@ import {
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { Public, ResponseMessage, User } from 'src/decorator/customize';
+import {
+  Permissions,
+  Public,
+  ResponseMessage,
+  User,
+} from 'src/decorator/customize';
 import { IUser } from 'src/user/interface/user.interface';
+import { PermissionsEnum } from 'src/constant/permissions.enum';
 
 @Controller('api/v1/category')
 export class CategoryController {
@@ -43,6 +49,7 @@ export class CategoryController {
 
   @Patch(':id')
   @ResponseMessage('Cập nhật danh mục thành công')
+  @Permissions(PermissionsEnum.UPDATE_CATEGORY)
   update(
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,

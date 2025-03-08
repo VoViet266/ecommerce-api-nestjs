@@ -47,7 +47,9 @@ export class MulterConfigService implements MulterOptionsFactory {
           //get image extension
           let extName = path.extname(file.originalname);
           //get image's name (without extension)
-          let baseName = path.basename(file.originalname, extName);
+          let baseName = path
+            .basename(file.originalname, extName)
+            .replace(/\s+/g, '_');
           let finalName = `${baseName}-${Date.now()}${extName}`;
           cb(null, finalName);
         },

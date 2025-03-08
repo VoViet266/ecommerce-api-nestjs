@@ -13,6 +13,12 @@ export class User {
   @Prop({ required: true })
   password: string;
 
+  @Prop()
+  phone: string;
+
+  @Prop()
+  avatar: string;
+
   @Prop({ required: true })
   email: string;
 

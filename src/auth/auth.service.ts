@@ -17,7 +17,12 @@ export class AuthService {
   ) {}
 
   async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.usersService.findOneByEmail(username);
+    const user = await (
+      await this.usersService.findOneByEmail(username)
+    ).populate({
+      path: 'roleID',
+      populate: { path: 'permissions' }, // Populate permissions trong role
+    });
     if (user) {
       const isValid = this.usersService.isValidPassword(pass, user.password);
       if (isValid === true) {
@@ -29,9 +34,18 @@ export class AuthService {
   async login(user: IUser, res: Response) {
     const { _id, name, email } = user;
 
-    const user_role = await this.userService.findOne(user._id);
-
+    const user_role = await (
+      await this.userService.findOne(user._id)
+    ).populate({
+      path: 'roleID',
+      populate: {
+        path: 'permissions',
+      },
+    });
     const roleName = user_role.roleID.map((role: any) => role.name);
+    const permission = user_role.roleID.flatMap((role: any) =>
+      role.permissions.map((per: any) => per.name),
+    );
 
     const payload = {
       sub: 'token login',
@@ -39,7 +53,10 @@ export class AuthService {
       _id,
       name,
       email,
-      role: roleName,
+      role: {
+        roleName,
+        permission: permission,
+      },
     };
 
     const refresh_Token = this.createRefreshToken({
@@ -59,7 +76,10 @@ export class AuthService {
       _id,
       name,
       email,
-      role: roleName,
+      role: {
+        roleName,
+        permission: permission,
+      },
     };
   }
 
@@ -71,7 +91,7 @@ export class AuthService {
     };
   }
 
-  createRefreshToken = (payload: any) => {
+  createRefreshToken = (payload: object) => {
     const refresh_Token = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
       expiresIn:
@@ -92,6 +112,9 @@ export class AuthService {
         const user_role = await this.userService.findOne(user._id.toString());
 
         const roleName = user_role.roleID.map((role: any) => role.name);
+        const permission = user_role.roleID.flatMap((role: any) =>
+          role.permissions.map((per: any) => per.name),
+        );
 
         const payload = {
           sub: 'token login',
@@ -99,7 +122,10 @@ export class AuthService {
           _id,
           name,
           email,
-          role: roleName,
+          role: {
+            roleName,
+            permission: permission,
+          },
         };
 
         const refresh_Token = this.createRefreshToken({
@@ -121,7 +147,10 @@ export class AuthService {
           _id,
           name,
           email,
-          role: roleName,
+          roles: {
+            roleName,
+            permission: permission,
+          },
         };
       } else {
         throw new BadRequestException(

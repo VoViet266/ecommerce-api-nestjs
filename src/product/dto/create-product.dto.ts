@@ -1,15 +1,26 @@
-import { IsEmpty } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
+import {
+  Camera,
+  Connectivity,
+  Specifications,
+  Variant,
+} from '../schemas/product.schemas';
 
 export class CreateProductDto {
-  // @IsEmpty({
-  //   message: 'Name Không được để trống',
-  // })
+  @IsNotEmpty()
   name: string;
   description: string;
-  price: number;
+ 
+  @IsNotEmpty()
   discount: number;
   stock: number;
+  specifications: Specifications;
+  camera: Camera;
+  connectivity: Connectivity;
+  variant: Variant[];
+  @IsNotEmpty()
   categoryId: string[];
+  @IsNotEmpty()
   brandId: string[];
   images: string[];
 }

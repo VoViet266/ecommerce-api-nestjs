@@ -1,4 +1,12 @@
+import { Variant } from 'src/product/schemas/product.schemas';
+
 export class CreateCartDto {
   userId: string;
-  products: { productId: string; quantity: number }[];
+  products: {
+    productId: string;
+    variant: Variant;
+    quantity: number;
+    price: number;
+    total: number;
+  }[];
 }

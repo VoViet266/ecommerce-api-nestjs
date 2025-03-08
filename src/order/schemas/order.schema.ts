@@ -1,9 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document, HydratedDocument, Types } from 'mongoose';
-import { Product } from 'src/product/schemas/product.schemas';
+import {
+  Product,
+  Variant,
+  VariantSchema,
+} from 'src/product/schemas/product.schemas';
 import { User } from 'src/user/schemas/user.schemas';
 
 export type OrderDocument = HydratedDocument<Order>;
+
 @Schema({
   timestamps: true,
 })
@@ -16,16 +21,28 @@ export class Order {
       {
         productId: { type: Types.ObjectId, required: true, ref: Product.name },
         quantity: { type: Number, required: true },
+        price: { type: Number, required: true },
+        variant: { type: VariantSchema, required: true },
       },
     ],
     required: true,
   })
-  products: { productId: Types.ObjectId; quantity: number; price: number }[];
+  products: {
+    productId: Types.ObjectId;
+    quantity: number;
+    price: number;
+    variant: Variant;
+  }[];
 
   @Prop({ type: Number, required: true, default: 0 })
   totalPrice: number;
 
-  @Prop({ type: String, required: true })
+  @Prop({
+    type: String,
+    required: true,
+    enum: ['pending', 'processing', 'completed', 'cancelled'],
+    default: 'pending',
+  })
   status: string;
 
   @Prop({ type: String, required: true })
@@ -48,7 +65,6 @@ export class Order {
   @Prop({ type: Object })
   updatedBy: {
     _id: mongoose.Schema.Types.ObjectId;
-
     email: string;
   };
 
@@ -57,6 +73,7 @@ export class Order {
     _id: mongoose.Schema.Types.ObjectId;
     email: string;
   };
+
   @Prop()
   isDeleted: boolean;
 

@@ -59,19 +59,44 @@ export class UsersService {
   findOne(id: string) {
     return this.userModel.findOne({ _id: id }).populate('roleID').exec();
   }
+  findAll() {
+    return this.userModel.find().populate({
+      path: 'roleID',
+      populate: {
+        path: 'permissions',
+      },
+    });
+  }
   findOneByEmail(username: string) {
     return this.userModel.findOne({ email: username });
   }
-
+  // compare password dung trong ham validateUser cua AuthService de so sanh password nhap vao va password trong database co trung khop hay khong
   isValidPassword(password: string, hash: string) {
     return compareSync(password, hash);
   }
 
-  async update(updateUserDto: UpdateUserDto) {
-    return await this.userModel.updateOne(
-      { _id: updateUserDto._id },
-      { ...updateUserDto },
-    );
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    console.log(updateUserDto);
+    const userExist = await this.userModel.findOne({ _id: id });
+    if (!userExist) {
+      throw new UnauthorizedException(`User with id ${id} not found`);
+    }
+    if (updateUserDto.email && updateUserDto.email !== userExist.email) {
+      const isExitEmail = await this.userModel.findOne({
+        email: updateUserDto.email,
+      });
+      if (isExitEmail) {
+        throw new UnauthorizedException(
+          `Email: ${updateUserDto.email} đã tồn tại trên hệ thống xin vui lòng chọn email khác`,
+        );
+      }
+    }
+
+    if (updateUserDto.password) {
+      updateUserDto.password = this.hashPassword(updateUserDto.password);
+    }
+
+    return await this.userModel.updateOne({ _id: id }, { ...updateUserDto });
   }
 
   findUser = async (refresh_Token: string) => {
@@ -81,6 +106,14 @@ export class UsersService {
   };
 
   async remove(id: string) {
+    if (!id) {
+      throw new UnauthorizedException(`User with id ${id} not found`);
+    }
+    const userExist = await this.userModel.findOne({ _id: id });
+    if (!userExist) {
+      throw new UnauthorizedException(`User with id ${id} not found`);
+    }
+
     return await this.userModel.softDelete({ _id: id });
   }
 }

@@ -8,12 +8,14 @@ import {
   CategorySchema,
 } from 'src/category/schemas/category.schemas';
 import { CategoryModule } from 'src/category/category.module';
+import { Brand, BrandSchema } from 'src/brand/schemas/brand.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Product.name, schema: ProductSchema },
       { name: Category.name, schema: CategorySchema },
+      { name: Brand.name, schema: BrandSchema },
     ]),
   ],
   controllers: [ProductController],

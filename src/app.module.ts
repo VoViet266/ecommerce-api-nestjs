@@ -14,6 +14,7 @@ import { MongooseConfigService } from './config/mongodb.config';
 import { FileModule } from './file/file.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
+import { CloundinaryModule } from './cloundinary/cloundinary.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { redisStore } from 'cache-manager-redis-yet';
     OrderModule,
     CartModule,
     FileModule,
+    CloundinaryModule,
     MongooseModule.forRootAsync(MongooseConfigService),
   ],
 })

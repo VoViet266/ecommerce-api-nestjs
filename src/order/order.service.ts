@@ -7,6 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { IUser } from 'src/user/interface/user.interface';
 import { Product, ProductDocument } from 'src/product/schemas/product.schemas';
 import { Cart, CartDocument } from 'src/cart/schemas/cart.schema';
+import path from 'path';
 
 @Injectable()
 export class OrderService {
@@ -20,6 +21,7 @@ export class OrderService {
   ) {}
 
   async create(createOrderDto: CreateOrderDto, user: IUser) {
+    //Tìm sản phẩm trong giỏ hàng của user
     const userCart = await this.CartModel.findOne({ userId: user._id });
     if (!userCart || userCart.products.length === 0) {
       throw new HttpException(
@@ -31,12 +33,15 @@ export class OrderService {
       );
     }
 
+    //Kiểm tra sản phẩm trong giỏ hàng có tồn tại trong db không
     const cartProductIds = userCart.products.map((product) =>
       product.productId.toString(),
     );
+
     createOrderDto.products = userCart.products.map((product) => ({
       productId: product.productId.toString(),
       quantity: product.quantity,
+      variant: product.variant,
       price: product.price,
     }));
 
@@ -53,11 +58,12 @@ export class OrderService {
       }
 
       const productDoc = await this.ProductModel.findById(product.productId);
+
       if (!productDoc) {
         throw new HttpException(
           {
             statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-            message: `Không tìm thấy sản phẩm ${productDoc.name}`,
+            message: `Không tìm thấy sản phẩm`,
           },
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
@@ -73,18 +79,44 @@ export class OrderService {
         );
       }
 
-      await this.ProductModel.findByIdAndUpdate(product.productId, {
-        stock: productDoc.stock - product.quantity,
+      const variant = productDoc.variant.find(
+        (v) => v._id.toString() === product.variant._id.toString(),
+      );
+      if (!variant) {
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+            message: `Không tìm thấy biến thể cho sản phẩm ${productDoc.name}`,
+          },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      if (variant.stock < product.quantity) {
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+            message: `Không đủ hàng cho biến thể ${variant.color} ${variant.storage}`,
+          },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      totalPrice += variant.price * product.quantity;
+      const updatedVariants = productDoc.variant.map((v) => {
+        if (v._id.toString() === product.variant._id.toString()) {
+          v.stock = Math.max(v.stock - product.quantity, 0); // Cập nhật stock
+        }
+        return v;
       });
-
-      totalPrice += productDoc.price * product.quantity;
+      await this.ProductModel.findByIdAndUpdate(product.productId, {
+        stock: Math.max(productDoc.stock - product.quantity, 0),
+        variant: updatedVariants,
+      });
     }
 
     createOrderDto.totalPrice = totalPrice;
     const newOrder = await this.OrderModel.create({
       ...createOrderDto,
       userId: user._id,
-      status: 'Pending',
       createdBy: {
         id: user._id,
         email: user.email,
@@ -97,6 +129,17 @@ export class OrderService {
 
   findAll() {
     return this.OrderModel.find()
+      .populate([
+        {
+          path: 'userId',
+          select: 'name email',
+        },
+        {
+          path: 'products.productId',
+          select: 'name price variant',
+        },
+      ])
+      .exec();
   }
 
   findOne(id: string) {
@@ -115,51 +158,49 @@ export class OrderService {
   }
 
   async update(id: string, updateOrderDto: UpdateOrderDto, user: IUser) {
-    let totalPrice = 0;
-    for (const product of updateOrderDto.products) {
-      const productDoc = await this.ProductModel.findById(product.productId);
-      const order = await this.OrderModel.findById(id);
+    if (updateOrderDto.products) {
+      let totalPrice = 0;
+      for (const product of updateOrderDto.products) {
+        const productDoc = await this.ProductModel.findById(product.productId);
+        const order = await this.OrderModel.findById(id);
 
-      //Kiêm tra sản phẩm để quay lại số lượng cũ khi update
-      await this.ProductModel.updateOne(
-        {
-          _id: product.productId,
-        },
-        {
-          stock: (productDoc.stock += order.products.find(
-            (p) => p.productId.toString() === product.productId.toString(),
-          ).quantity),
-        },
-      );
-
-      //Kiểm tra số lượng tồn kho khi update
-      if (productDoc.stock < product.quantity) {
-        throw new HttpException(
+        // Khôi phục số lượng cũ trước khi cập nhật
+        await this.ProductModel.updateOne(
+          { _id: product.productId },
           {
-            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-            message: `Không đủ hàng cho sản phẩm ${productDoc.name}`,
+            stock: (productDoc.stock += order.products.find(
+              (p) => p.productId.toString() === product.productId.toString(),
+            ).quantity),
           },
-          HttpStatus.INTERNAL_SERVER_ERROR,
         );
-      }
-      //Cập nhật số lượng tồn kho mới
-      await this.ProductModel.updateOne(
-        {
-          _id: product.productId,
-        },
-        {
-          stock: (productDoc.stock -= product.quantity),
-        },
-      );
-      //Tính tổng giá trị đơn hàng
-      totalPrice += productDoc.price * product.quantity;
-    }
-    updateOrderDto.totalPrice = totalPrice;
 
+        // Kiểm tra tồn kho
+        if (productDoc.stock < product.quantity) {
+          throw new HttpException(
+            {
+              statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+              message: `Không đủ hàng cho sản phẩm ${productDoc.name}`,
+            },
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+        }
+
+        // Cập nhật số lượng tồn kho mới
+        await this.ProductModel.updateOne(
+          { _id: product.productId },
+          { stock: (productDoc.stock -= product.quantity) },
+        );
+
+        // Tính tổng giá trị đơn hàng
+        totalPrice += product.variant.price * product.quantity;
+      }
+
+      updateOrderDto.totalPrice = totalPrice;
+    }
+
+    // Cập nhật đơn hàng với dữ liệu mới
     return this.OrderModel.updateOne(
-      {
-        _id: id,
-      },
+      { _id: id },
       {
         ...updateOrderDto,
         updatedBy: {

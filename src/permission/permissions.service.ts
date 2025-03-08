@@ -1,15 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
+import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
+import { PermissionDocument } from './schemas/permission.schemas';
+import { InjectModel } from '@nestjs/mongoose';
+import { IUser } from 'src/user/interface/user.interface';
+import { Permission } from './schemas/permission.schemas';
 
 @Injectable()
 export class PermissionsService {
-  create(createPermissionDto: CreatePermissionDto) {
-    return 'This action adds a new permission';
+  constructor(
+    @InjectModel(Permission.name)
+    private readonly permissionsModel: SoftDeleteModel<PermissionDocument>,
+  ) {}
+  async create(createPermissionDto: CreatePermissionDto, user: IUser) {
+    let permission = await this.permissionsModel.create({
+      ...createPermissionDto,
+      createdBy: {
+        _id: user._id,
+        email: user.email,
+      },
+    });
+    return permission;
   }
 
   findAll() {
-    return `This action returns all permissions`;
+    return this.permissionsModel.find();
   }
 
   findOne(id: number) {

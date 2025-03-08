@@ -12,7 +12,7 @@ export class Brand extends Document {
   description: string;
 
   @Prop()
-  logo: string[];
+  logo: string;
 
   @Prop()
   createdAt: Date;

@@ -35,6 +35,8 @@ export class RegisterUserDto {
   })
   password: string;
 
+  avatar: string;
+
   @IsEmail()
   @IsNotEmpty({
     message: 'Email không được để trống',

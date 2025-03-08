@@ -13,28 +13,36 @@ import {
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { Public, ResponseMessage, Roles, User } from 'src/decorator/customize';
+import {
+  Permissions,
+  Public,
+  ResponseMessage,
+  Roles,
+  User,
+} from 'src/decorator/customize';
 import { IUser } from 'src/user/interface/user.interface';
 import { RolesUser } from 'src/constant/roles.enum';
+import { PermissionsEnum } from 'src/constant/permissions.enum';
 
 @Controller('api/v1/product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Post()
+  @Permissions(PermissionsEnum.CREATE_PRODUCT)
+  @Roles(RolesUser.Admin)
   @ResponseMessage('Tạo sản phẩm thành công')
-  // @Roles(RolesUser.Admin)
   create(@Body() createProductDto: CreateProductDto, @User() user: IUser) {
     return this.productService.create(createProductDto, user);
   }
-
-  @Public()
   @Get()
+  @Public()
   @ResponseMessage('Lấy danh sách sản phẩm thành công')
   findAll(
     @Query('page') currentPage: string,
     @Query('limit') limit: string,
     @Query() qs: string,
+    @User() user: IUser,
   ) {
     return this.productService.findAll(+currentPage, +limit, qs);
   }
@@ -48,8 +56,10 @@ export class ProductController {
 
   @Patch(':id')
   @ResponseMessage('Câp nhật sản phẩm thành công')
-  @Roles(RolesUser.Admin)
-  update(
+  // @Public()
+  // @Roles(RolesUser.Admin)
+  @Permissions(PermissionsEnum.UPDATE_PRODUCT)
+  async update(
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
     @User() user: IUser,
@@ -58,9 +68,11 @@ export class ProductController {
   }
 
   @Delete(':id')
-  @Roles(RolesUser.Admin)
+  // @Roles(RolesUser.Admin)
   @ResponseMessage('Đã xóa sản phẩm thành công')
+  // @Permissions(PermissionsEnum.DELETE_PRODUCT)
   remove(@Param('id') id: string) {
-    return this.productService.remove(id);
+    this.productService.remove(id);
+    return { message: 'Xóa sản phẩm thành công' };
   }
 }

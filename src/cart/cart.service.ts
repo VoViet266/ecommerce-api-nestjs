@@ -20,14 +20,27 @@ export class CartService {
     const products = await Promise.all(
       createCartDto.products.map(async (product) => {
         const productData = await this.productModel.findById(product.productId);
+        //tìm variant của sản phẩm
+        const variant = productData.variant.find(
+          (v) => v._id.toString() === product.variant._id.toString(),
+        );
+        console.log('variant', variant);
         if (!productData) {
           throw new Error(`Product with ID ${product.productId} not found`);
         }
-        const total = productData.price * product.quantity;
+        if (!variant) {
+          throw new Error(`Variant with ID ${product.variant._id} not found`);
+        }
+
+        // Tính tổng tiền của sản phẩm
+        const total = product.quantity * variant.price;
+
         return {
           productId: product.productId,
+          name: productData.name,
+          variant: variant,
           quantity: product.quantity,
-          price: productData.price,
+          price: variant.price,
           total,
         };
       }),
@@ -44,14 +57,14 @@ export class CartService {
     });
   }
   findAll() {
-    return this.cartModel.find().exec();
+    return this.cartModel.find();
   }
 
   findOne(id: string) {
     return this.cartModel.findById(id).populate('products.productId').exec();
   }
 
-  update(id: number, updateCartDto: UpdateCartDto) {
+  update(id: string, updateCartDto: UpdateCartDto) {
     return this.cartModel.updateOne(
       {
         _id: id,
@@ -60,7 +73,7 @@ export class CartService {
     );
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return this.cartModel.deleteOne({
       _id: id,
     });

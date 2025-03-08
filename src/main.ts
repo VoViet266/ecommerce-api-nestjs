@@ -8,8 +8,9 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
 import { RolesGuard } from './common/guards/roles.guard';
 import cookieParser = require('cookie-parser');
 import * as express from 'express';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, BadRequestException } from '@nestjs/common';
 import { HttpExceptionFilter } from './common/filter/http-exception.filter';
+import { PermissionsGuard } from './common/guards/permission.guard';
 
 declare const module: any;
 async function bootstrap() {
@@ -17,7 +18,7 @@ async function bootstrap() {
 
   app.useStaticAssets(join(__dirname, '..', 'public'));
   app.setBaseViewsDir(join(__dirname, '..', 'views'));
-  
+  //  app.setViewEngine('ejs');
   app.enableCors({
     origin: 'http://localhost:3000',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -33,8 +34,12 @@ async function bootstrap() {
   // jwtAuthGuard sẽ xác thực token
   // RolesGuard sẽ xác thực role của user
   //
-  app.useGlobalGuards(new JwtAuthGuard(reflector), new RolesGuard(reflector));
-  // app.setViewEngine('ejs');
+  app.useGlobalGuards(
+    new JwtAuthGuard(reflector),
+    new RolesGuard(reflector),
+    new PermissionsGuard(reflector),
+  );
+
   app.use(express.json()); // Giải mã JSON
   app.use(express.urlencoded({ extended: true })); // Giải mã x-www-form-urlencoded
   app.useGlobalPipes(new ValidationPipe());
@@ -45,9 +50,9 @@ async function bootstrap() {
 
   await app.listen(configService.get<string>('PORT'));
   console.log(
-    `Application is running on: ${configService.get<string>('BASE_URL')}${configService.get<string>(
-      'PORT',
-    )}`,
+    `Application is running on: ${configService.get<string>(
+      'BASE_URL',
+    )}${configService.get<string>('PORT')}`,
   );
   if (module.hot) {
     module.hot.accept();

@@ -41,7 +41,7 @@ export class FileController {
           fileType: /^image\/(png|jpe?g|gif|webp)$/,
         })
         .addMaxSizeValidator({
-          maxSize: 1024 * 1000,
+          maxSize: 1024 * 2000,
         })
         .build({
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,

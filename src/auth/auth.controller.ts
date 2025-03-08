@@ -42,9 +42,9 @@ export class AuthController {
     };
   }
 
-  @Public()
   @ResponseMessage('Lấy Refresh Token thành công')
   @Get('/refresh')
+  @Public()
   handleRefreshToken(
     @Req() request: Request & { cookies: { [key: string]: string } },
     @Res({ passthrough: true }) res: Response,
