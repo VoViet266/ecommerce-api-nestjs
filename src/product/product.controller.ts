@@ -48,6 +48,13 @@ export class ProductController {
   }
 
   @Public()
+  @ResponseMessage('Tìm kiếm sản phẩm thành công')
+  @Get('/search')
+  async autocomplete(@Query('q') query: string) {
+    return this.productService.autocompleteSearch(query);
+  }
+
+  @Public()
   @Get(':id')
   @ResponseMessage('lấy thông tin sản phẩm thông qua Id thành công')
   async findOne(@Param('id') id: string) {

@@ -39,6 +39,69 @@ export class ProductService {
       },
     });
   }
+  async autocompleteSearch(query: string) {
+    const result = await this.productModel.aggregate([
+      {
+        $search: {
+          index: 'product_search',
+          autocomplete: {
+            query: query,
+            path: 'name',
+            tokenOrder: 'sequential',
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: 'categories',
+          localField: 'categoryId',
+          foreignField: '_id',
+          as: 'category',
+        },
+      },
+      {
+        $lookup: {
+          from: 'brands',
+          localField: 'brandId',
+          foreignField: '_id',
+          as: 'brand',
+        },
+      },
+      {
+        $limit: 10,
+      },
+      {
+        $project: {
+          name: 1,
+          description: 1,
+          price: 1,
+          stock: 1,
+          discount: 1,
+          images: 1,
+          categoryId: {
+            _id: { $arrayElemAt: ['$category._id', 0] },
+            name: { $arrayElemAt: ['$category.name', 0] },
+          },
+          brandId: {
+            _id: { $arrayElemAt: ['$brand._id', 0] },
+            name: { $arrayElemAt: ['$brand.name', 0] },
+            description: { $arrayElemAt: ['$brand.description', 0] },
+            logo: { $arrayElemAt: ['$brand.logo', 0] },
+          },
+
+          variant: {
+            _id: 1,
+            color: 1,
+            size: 1,
+            stock: 1,
+            price: 1,
+          },
+        },
+      },
+    ]);
+
+    return result;
+  }
 
   async findAll(currentPage: number, limit: number, qs: string) {
     const { filter, sort, population } = aqp(qs);
@@ -192,10 +255,6 @@ export class ProductService {
       { _id: id },
       {
         ...updateProductDto,
-        // updatedBy: {
-        //   id: user._id,
-        //   email: user.email,
-        // },
       },
     );
 
