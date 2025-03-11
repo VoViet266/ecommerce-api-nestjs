@@ -32,7 +32,7 @@ export class AuthService {
     return null;
   }
   async login(user: IUser, res: Response) {
-    const { _id, name, email } = user;
+    const { _id, name, email, avatar } = user;
 
     const user_role = await (
       await this.userService.findOne(user._id)
@@ -53,6 +53,7 @@ export class AuthService {
       _id,
       name,
       email,
+      avatar,
       role: {
         roleName,
         permission: permission,
@@ -76,6 +77,7 @@ export class AuthService {
       _id,
       name,
       email,
+      avatar,
       role: {
         roleName,
         permission: permission,
@@ -107,7 +109,7 @@ export class AuthService {
       });
       let user = await this.userService.findUser(refresh_Token);
       if (user) {
-        const { _id, name, email } = user;
+        const { _id, name, email, avatar } = user;
 
         const user_role = await this.userService.findOne(user._id.toString());
 
@@ -122,6 +124,7 @@ export class AuthService {
           _id,
           name,
           email,
+          avatar,
           role: {
             roleName,
             permission: permission,

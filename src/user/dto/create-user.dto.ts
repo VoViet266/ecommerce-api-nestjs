@@ -19,6 +19,7 @@ export class CreateUserDto {
     message: 'Email không được để trống',
   })
   email: string;
+  avatar: string;
   address: string;
   rolesID: string[];
   age: string;

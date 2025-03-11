@@ -39,16 +39,12 @@ export class Specifications {
     capacity: string;
     technology: string;
   };
-
   charging: {
     technology: string;
     capacity: string;
   };
-
   os: string;
-
   weight: string;
-
   material: string;
 }
 
@@ -114,7 +110,7 @@ export class Product {
   brandId: mongoose.Types.ObjectId[];
 
   @Prop()
-  images: Image[];
+  images: Image;
 
   @Prop()
   specifications: Specifications;

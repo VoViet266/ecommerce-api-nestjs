@@ -24,7 +24,6 @@ export class CartService {
         const variant = productData.variant.find(
           (v) => v._id.toString() === product.variant._id.toString(),
         );
-        console.log('variant', variant);
         if (!productData) {
           throw new Error(`Product with ID ${product.productId} not found`);
         }

@@ -49,6 +49,8 @@ export class ProductService {
             path: 'name',
             tokenOrder: 'sequential',
           },
+
+         
         },
       },
       {
@@ -99,7 +101,6 @@ export class ProductService {
         },
       },
     ]);
-
     return result;
   }
 
