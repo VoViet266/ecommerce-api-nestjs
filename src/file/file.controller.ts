@@ -11,19 +11,23 @@ import {
   ParseFilePipeBuilder,
   HttpStatus,
   Req,
+  NotFoundException,
 } from '@nestjs/common';
 import { FileService } from './file.service';
 
 import { UpdateFileDto } from './dto/update-file.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ResponseMessage } from 'src/decorator/customize';
+import { Public, ResponseMessage } from 'src/decorator/customize';
 import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Controller('api/v1')
 export class FileController {
   private readonly Base_URL: string;
   private readonly PORT: string;
+
   constructor(
     private readonly fileService: FileService,
     private readonly configService: ConfigService,
@@ -31,6 +35,7 @@ export class FileController {
     this.Base_URL = this.configService.get<string>('BASE_URL');
     this.PORT = this.configService.get<string>('PORT');
   }
+
   @Post('upload')
   @ResponseMessage('Upload file thành công')
   @UseInterceptors(FileInterceptor('file'))
@@ -50,34 +55,39 @@ export class FileController {
     file: Express.Multer.File,
     @Req() request: Request,
   ) {
-    const folderType = request.headers['folder_type'];
-
-    const filePath = folderType
-      ? `${this.Base_URL}${this.PORT}/images/${folderType}/${file.filename}`
-      : `${this.Base_URL}${this.PORT}/images/${file.filename}`;
+    const filePath = `${this.Base_URL}${this.PORT}/uploads/${file.filename}`;
     console.log(filePath);
     return {
       filePath: filePath,
+      filename: file.filename,
     };
   }
 
-  @Get()
-  findAll() {
-    return this.fileService.findAll();
-  }
+  @Delete('delete/:filename')
+  @Public()
+  @ResponseMessage('Xóa file thành công')
+  async deleteFile(@Param('filename') filename: string) {
+    try {
+      // Xác định đường dẫn file
+      const filePath = path.join(process.cwd(), 'public/uploads', filename);
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.fileService.findOne(+id);
-  }
+      // Kiểm tra xem file có tồn tại không
+      if (!fs.existsSync(filePath)) {
+        
+      }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFileDto: UpdateFileDto) {
-    return this.fileService.update(+id, updateFileDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.fileService.remove(+id);
+      // Xóa file
+      fs.unlinkSync(filePath);
+      console.log(`File ${filename} đã được xóa thành công`);
+      return {
+        filename,
+        message: `File ${filename} đã được xóa thành công`,
+      };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new Error(`Không thể xóa file: ${error.message}`);
+    }
   }
 }

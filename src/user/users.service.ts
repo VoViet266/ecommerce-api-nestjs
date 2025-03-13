@@ -100,9 +100,10 @@ export class UsersService {
   }
 
   findUser = async (refresh_Token: string) => {
-    return await this.userModel.findOne({
+    const user = await this.userModel.findOne({
       refreshToken: refresh_Token,
     });
+    return user;
   };
 
   async remove(id: string) {

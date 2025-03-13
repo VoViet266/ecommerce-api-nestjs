@@ -39,9 +39,8 @@ export class MulterConfigService implements MulterOptionsFactory {
     return {
       storage: diskStorage({
         destination: (req, file, cb) => {
-          const folder = req?.headers?.folder_type ?? '';
-          this.ensureExists(`public/images/${folder}`);
-          cb(null, join(this.getRootPath(), `public/images/${folder}`));
+          this.ensureExists(`public/uploads`);
+          cb(null, join(this.getRootPath(), `public/uploads`));
         },
         filename: (req, file, cb) => {
           //get image extension

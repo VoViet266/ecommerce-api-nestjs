@@ -6,12 +6,26 @@ import { Category } from 'src/category/schemas/category.schemas';
 export type ProductDocument = HydratedDocument<Product>;
 
 class Image {
-  @Prop({ type: String })
-  main: string[];
-  @Prop({ type: String })
-  thumbnail: string[];
-  @Prop({ type: String })
-  gallery: string[];
+  @Prop({ type: Object })
+  main: {
+    original_name: string;
+    type: string;
+    url: string;
+  };
+
+  @Prop({ type: Object })
+  thumbnail: {
+    original_name: string;
+    type: string;
+    url: string;
+  };
+
+  @Prop({ type: [Object] })
+  gallery: {
+    original_name: string;
+    type: string;
+    url: string;
+  }[];
 }
 
 export class Specifications {

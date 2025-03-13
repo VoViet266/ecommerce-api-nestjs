@@ -46,7 +46,6 @@ export class AuthService {
     const permission = user_role.roleID.flatMap((role: any) =>
       role.permissions.map((per: any) => per.name),
     );
-
     const payload = {
       sub: 'token login',
       iss: 'from server',
@@ -109,9 +108,14 @@ export class AuthService {
       });
       let user = await this.userService.findUser(refresh_Token);
       if (user) {
-        const { _id, name, email, avatar } = user;
-
-        const user_role = await this.userService.findOne(user._id.toString());
+        const user_role = await (
+          await this.userService.findOne(user._id.toString())
+        ).populate({
+          path: 'roleID',
+          populate: {
+            path: 'permissions',
+          },
+        });
 
         const roleName = user_role.roleID.map((role: any) => role.name);
         const permission = user_role.roleID.flatMap((role: any) =>
@@ -121,10 +125,10 @@ export class AuthService {
         const payload = {
           sub: 'token login',
           iss: 'from server',
-          _id,
-          name,
-          email,
-          avatar,
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          avatar: user.avatar,
           role: {
             roleName,
             permission: permission,
@@ -135,7 +139,10 @@ export class AuthService {
           payload,
         });
 
-        await this.userService.updateUserToken(refresh_Token, _id.toString());
+        await this.userService.updateUserToken(
+          refresh_Token,
+          user._id.toString(),
+        );
 
         res.clearCookie('refresh_Token');
 
@@ -147,10 +154,11 @@ export class AuthService {
         });
         return {
           access_token: this.jwtService.sign(payload),
-          _id,
-          name,
-          email,
-          roles: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          avatar: user.avatar,
+          role: {
             roleName,
             permission: permission,
           },

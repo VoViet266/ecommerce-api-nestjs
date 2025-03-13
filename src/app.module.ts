@@ -15,6 +15,7 @@ import { FileModule } from './file/file.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
 import { CloundinaryModule } from './cloundinary/cloundinary.module';
+// import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { CloundinaryModule } from './cloundinary/cloundinary.module';
     FileModule,
     CloundinaryModule,
     MongooseModule.forRootAsync(MongooseConfigService),
+    // MailModule,
   ],
 })
 export class AppModule {}
