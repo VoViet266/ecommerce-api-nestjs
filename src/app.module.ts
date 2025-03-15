@@ -15,6 +15,7 @@ import { FileModule } from './file/file.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
 import { CloundinaryModule } from './cloundinary/cloundinary.module';
+import { MailModule } from './mail/mail.module';
 // import { MailModule } from './mail/mail.module';
 
 @Module({
@@ -33,7 +34,7 @@ import { CloundinaryModule } from './cloundinary/cloundinary.module';
         },
         username: configService.get<string>('REDIS_USERNAME'),
         password: configService.get<string>('REDIS_PASSWORD'),
-        ttl: 60 * 1000, // Thời gian sống của cache (tính bằng giây)
+        ttl: 600 * 1000, // Thời gian sống của cache (tính bằng giây)
       }),
       inject: [ConfigService],
     }),
@@ -49,7 +50,7 @@ import { CloundinaryModule } from './cloundinary/cloundinary.module';
     FileModule,
     CloundinaryModule,
     MongooseModule.forRootAsync(MongooseConfigService),
-    // MailModule,
+    MailModule,
   ],
 })
 export class AppModule {}

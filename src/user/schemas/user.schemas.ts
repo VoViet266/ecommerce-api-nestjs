@@ -40,7 +40,11 @@ export class User {
     default: ['677cfbb7811cbee760e7a86a'],
   })
   roleID: mongoose.Types.ObjectId[];
+  @Prop()
+  resetPasswordToken: string;
 
+  @Prop()
+  resetPasswordExpires: Date;
   @Prop()
   createdAt: Date;
 

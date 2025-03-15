@@ -7,6 +7,7 @@ import {
   Get,
   Req,
   Request,
+  BadRequestException,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { LocalAuthGuard } from '../common/guards/local.guard';
@@ -57,5 +58,41 @@ export class AuthController {
   @Get('/logout')
   handleLogout(@Res({ passthrough: true }) res: Response, @User() user: IUser) {
     return this.authService.logout(res, user);
+  }
+
+  @Post('forgot-password')
+  @Public()
+  async forgotPassword(@Body('email') email: string) {
+    if (!email) {
+      throw new BadRequestException('Email là trường bắt buộc.');
+    }
+
+    await this.authService.forgotPassword(email);
+    return {
+      message:
+        'Email đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra hộp thư của bạn.',
+    };
+  }
+
+  @Post('reset-password')
+  @Public()
+  async resetPassword(
+    @Body('token') token: string,
+    @Body('password') password: string,
+  ) {
+    if (!token || !password) {
+      throw new BadRequestException(
+        'Token và mật khẩu mới là các trường bắt buộc.',
+      );
+    }
+
+    // if (password.length < 8) {
+    //   throw new BadRequestException('Mật khẩu phải có ít nhất 8 ký tự.');
+    // }
+
+    await this.authService.resetPassword(token, password);
+    return {
+      message: 'Mật khẩu đã được đặt lại thành công.',
+    };
   }
 }

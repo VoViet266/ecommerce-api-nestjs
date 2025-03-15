@@ -6,4 +6,6 @@ export class UpdateUserDto extends OmitType(CreateUserDto, [
 ] as const) {
   _id: string;
   password: string;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
 }

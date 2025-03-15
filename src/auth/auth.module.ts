@@ -12,11 +12,13 @@ import { JwtStrategy } from './passport/jwt.strategy';
 import ms from 'ms';
 import { RoleService } from 'src/role/role.service';
 import { RolesModule } from 'src/role/roles.module';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   imports: [
     UsersModule,
     PassportModule,
+    MailModule,
     ConfigModule,
     RolesModule,
     JwtModule.registerAsync({
