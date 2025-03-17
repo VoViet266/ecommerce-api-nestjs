@@ -7,6 +7,5 @@ export class CreateCartDto {
     variant: Variant;
     quantity: number;
     price: number;
-    total: number;
   }[];
 }

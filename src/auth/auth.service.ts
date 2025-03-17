@@ -206,9 +206,9 @@ export class AuthService {
     // Tạo token mới
     const token = uuidv4();
 
-    // Thiết lập thời gian hết hạn (1 giờ)
+    // Thời gian hết hạn của token là 1 phút
     const expiresAt = new Date();
-    expiresAt.setHours(expiresAt.getHours() + 1);
+    expiresAt.setHours(expiresAt.getMinutes() + 1);
 
     // Lưu token và thời gian hết hạn vào user
     // Lưu token và thời gian hết hạn vào user

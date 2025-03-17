@@ -22,7 +22,7 @@ import { MailModule } from './mail/mail.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env', '.env.development', '.env.production'],
+      envFilePath: ['.env', '.env.development.local', '.env.production.local'],
     }),
     CacheModule.registerAsync({
       isGlobal: true,

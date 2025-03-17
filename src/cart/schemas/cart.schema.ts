@@ -27,7 +27,6 @@ export class Cart extends Document {
       quantity: { type: Number, required: true }, // Số lượng sản phẩm
       variant: { type: VariantSchema, require: true }, // Biến thể sản phẩm
       price: { type: Number, required: true }, // Giá lúc thêm vào giỏ hàng
-      total: { type: Number, required: true }, // Tổng giá trị của sản phẩm trong giỏ hàng
     },
   ])
   products: {
@@ -36,8 +35,10 @@ export class Cart extends Document {
     quantity: number;
     variant: Variant;
     price: number;
-    total: number;
   }[];
+
+  @Prop({ type: Number, required: true })
+  totalPrice: number;
 
   @Prop()
   createdAt: Date;

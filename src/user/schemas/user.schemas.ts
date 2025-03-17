@@ -45,6 +45,7 @@ export class User {
 
   @Prop()
   resetPasswordExpires: Date;
+
   @Prop()
   createdAt: Date;
 

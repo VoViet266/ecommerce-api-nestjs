@@ -29,7 +29,6 @@ export class CartController {
   }
 
   @Get(':id')
-  
   findOne(@Param('id') id: string) {
     return this.cartService.findOne(id);
   }
@@ -38,7 +37,7 @@ export class CartController {
   update(@Param('id') id: string, @Body() updateCartDto: UpdateCartDto) {
     return this.cartService.update(id, updateCartDto);
   }
- 
+
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.cartService.remove(id);

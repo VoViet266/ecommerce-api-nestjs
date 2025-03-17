@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UsersService } from 'src/user/users.service';
 import { UsersModule } from 'src/user/users.module';
 import { PassportModule } from '@nestjs/passport';
 

@@ -10,9 +10,6 @@ export class Category {
   @Prop()
   description: string;
 
-  // @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: Category.name })
-  // parentCategoryId: mongoose.Types.ObjectId[];
-
   @Prop()
   createdAt: Date;
 
@@ -27,7 +24,6 @@ export class Category {
   @Prop({ type: Object })
   updatedBy: {
     _id: mongoose.Schema.Types.ObjectId;
-
     email: string;
   };
 
