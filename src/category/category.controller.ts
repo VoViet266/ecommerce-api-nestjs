@@ -48,6 +48,7 @@ export class CategoryController {
   }
 
   @Patch(':id')
+  @Permissions(PermissionsEnum.UPDATE_CATEGORY)
   @ResponseMessage('Cập nhật danh mục thành công')
   @Permissions(PermissionsEnum.UPDATE_CATEGORY)
   update(
@@ -59,6 +60,7 @@ export class CategoryController {
   }
 
   @Delete(':id')
+  @Permissions(PermissionsEnum.DELETE_CATEGORY)
   @ResponseMessage('Xóa danh mục thành công')
   remove(@Param('id') id: string) {
     return this.categoryService.remove(id);

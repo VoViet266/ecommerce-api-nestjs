@@ -1,9 +1,6 @@
 import {
   Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
+  Post, 
   Param,
   Delete,
   UseInterceptors,
@@ -13,9 +10,7 @@ import {
   Req,
   NotFoundException,
 } from '@nestjs/common';
-import { FileService } from './file.service';
 
-import { UpdateFileDto } from './dto/update-file.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Public, ResponseMessage } from 'src/decorator/customize';
 import { Request } from 'express';
@@ -29,7 +24,6 @@ export class FileController {
   private readonly PORT: string;
 
   constructor(
-    private readonly fileService: FileService,
     private readonly configService: ConfigService,
   ) {
     this.Base_URL = this.configService.get<string>('BASE_URL');
@@ -73,7 +67,7 @@ export class FileController {
 
       // Kiểm tra xem file có tồn tại không
       if (!fs.existsSync(filePath)) {
-        
+        throw new NotFoundException(`File ${filename} không tồn tại`);
       }
 
       // Xóa file

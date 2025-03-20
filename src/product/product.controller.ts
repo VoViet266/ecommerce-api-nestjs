@@ -30,7 +30,6 @@ export class ProductController {
 
   @Post()
   @Permissions(PermissionsEnum.CREATE_PRODUCT)
-  @Roles(RolesUser.Admin)
   @ResponseMessage('Tạo sản phẩm thành công')
   create(@Body() createProductDto: CreateProductDto, @User() user: IUser) {
     return this.productService.create(createProductDto, user);
@@ -63,8 +62,6 @@ export class ProductController {
 
   @Patch(':id')
   @ResponseMessage('Câp nhật sản phẩm thành công')
-  // @Public()
-  // @Roles(RolesUser.Admin)
   @Permissions(PermissionsEnum.UPDATE_PRODUCT)
   async update(
     @Param('id') id: string,
@@ -75,9 +72,8 @@ export class ProductController {
   }
 
   @Delete(':id')
-  // @Roles(RolesUser.Admin)
   @ResponseMessage('Đã xóa sản phẩm thành công')
-  // @Permissions(PermissionsEnum.DELETE_PRODUCT)
+  @Permissions(PermissionsEnum.DELETE_PRODUCT)
   remove(@Param('id') id: string) {
     this.productService.remove(id);
     return { message: 'Xóa sản phẩm thành công' };

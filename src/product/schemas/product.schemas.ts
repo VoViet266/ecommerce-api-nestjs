@@ -48,7 +48,6 @@ export class Specifications {
     size: string;
     technology: string;
   };
-
   battery: {
     capacity: string;
     technology: string;
@@ -95,7 +94,7 @@ export class Variant {
 
   @Prop({ required: false }) // Có thể thay đổi thành không bắt buộc
   ram: string;
-  id: Variant;
+  // id: Variant;
   _id: any;
 }
 

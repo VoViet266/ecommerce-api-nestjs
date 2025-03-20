@@ -11,11 +11,10 @@ import {
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { ResponseMessage, Roles, User } from 'src/decorator/customize';
-import { use } from 'passport';
+import { Public, ResponseMessage, Roles, User } from 'src/decorator/customize';
 import { IUser } from 'src/user/interface/user.interface';
 import { HttpExceptionFilter } from 'src/common/filter/http-exception.filter';
-import { RolesUser } from 'src/constant/roles.enum';
+
 
 @Controller('/api/v1/order')
 @UseFilters(HttpExceptionFilter)
@@ -29,6 +28,7 @@ export class OrderController {
   }
 
   @Get()
+  @Public()
   @ResponseMessage('Lấy danh sách đơn hàng thành công')
   findAll() {
     return this.orderService.findAll();

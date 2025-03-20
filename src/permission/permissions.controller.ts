@@ -10,14 +10,17 @@ import {
 import { PermissionsService } from './permissions.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
-import { User } from 'src/decorator/customize';
+import { Roles, User } from 'src/decorator/customize';
 import { IUser } from 'src/user/interface/user.interface';
+import { RolesUser } from 'src/constant/roles.enum';
+import { Role } from 'src/role/Schemas/role.schemas';
 
 @Controller('/api/v1/permissions')
 export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) {}
 
   @Post()
+  @Roles(RolesUser.Admin)
   create(
     @Body() createPermissionDto: CreatePermissionDto,
     @User() user: IUser,
@@ -36,6 +39,7 @@ export class PermissionsController {
   }
 
   @Patch()
+  @Roles(RolesUser.Admin)
   update(
     @Param('id') id: string,
     @Body() updatePermissionDto: UpdatePermissionDto,
@@ -43,6 +47,7 @@ export class PermissionsController {
     return this.permissionsService.update(+id, updatePermissionDto);
   }
   @Delete()
+  @Roles(RolesUser.Admin)
   remove(@Param('id') id: string) {
     return this.permissionsService.remove(+id);
   }

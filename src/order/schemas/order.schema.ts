@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document, HydratedDocument, Types } from 'mongoose';
+import { OrderStatus } from 'src/constant/status.enum';
 import {
   Product,
   Variant,
@@ -40,8 +41,8 @@ export class Order {
   @Prop({
     type: String,
     required: true,
-    enum: ['pending', 'processing', 'completed', 'cancelled'],
-    default: 'pending',
+    enum: OrderStatus,
+    default: OrderStatus.pending
   })
   status: string;
 

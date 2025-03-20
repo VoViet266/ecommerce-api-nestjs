@@ -27,7 +27,7 @@ export class UsersController {
   }
 
   @Get()
-  // @Roles(RolesUser.Admin)
+  @Roles(RolesUser.Admin)
   @Public()
   @ResponseMessage('Lấy danh sách người dùng thành công')
   findAll() {
@@ -35,7 +35,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  @Roles(RolesUser.Customer)
+  @Roles(RolesUser.Customer, RolesUser.Admin)
   @ResponseMessage('Lấy thông tin người dùng thành công')
   findOne(@Param('id') id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
