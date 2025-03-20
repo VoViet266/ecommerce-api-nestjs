@@ -48,6 +48,7 @@ async function bootstrap() {
     credentials: true,
   });
   await app.listen(configService.get<string>('PORT'));
+  console.log(`Application is running on: ${await app.getUrl()}`);
   console.log(
     `Application is running on: ${configService.get<string>(
       'BASE_URL',
