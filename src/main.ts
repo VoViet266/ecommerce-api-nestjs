@@ -19,13 +19,6 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, '..', 'public'));
   app.setBaseViewsDir(join(__dirname, '..', 'views'));
   //  app.setViewEngine('ejs');
-  app.enableCors({
-    origin: 'http://localhost:3000',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
-    credentials: true,
-  });
 
   app.use(cookieParser());
   // Cần phải xác thực token mới cho phép truy cập vào các api khác
@@ -47,7 +40,13 @@ async function bootstrap() {
   app.useGlobalInterceptors(new TransformInterceptor(reflector));
 
   const configService = app.get(ConfigService);
-
+  app.enableCors({
+    origin: configService.get<string>('URL_REACT'),
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+    credentials: true,
+  });
   await app.listen(configService.get<string>('PORT'));
   console.log(
     `Application is running on: ${configService.get<string>(

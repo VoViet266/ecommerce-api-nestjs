@@ -11,7 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import ms from 'ms';
 import { Response } from 'express';
 import { MailService } from 'src/mail/mail.service';
-import { randomUUID } from 'crypto';
+import { randomBytes, randomUUID } from 'crypto';
 import { UpdateUserDto } from 'src/user/dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
@@ -204,8 +204,7 @@ export class AuthService {
     }
 
     // Tạo token mới
-    const token = uuidv4();
-
+    const token = randomBytes(3).toString('hex');
     // Thời gian hết hạn của token là 1 phút
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getMinutes() + 1);

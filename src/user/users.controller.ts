@@ -28,7 +28,6 @@ export class UsersController {
 
   @Get()
   @Roles(RolesUser.Admin)
-  @Public()
   @ResponseMessage('Lấy danh sách người dùng thành công')
   findAll() {
     return this.usersService.findAll();

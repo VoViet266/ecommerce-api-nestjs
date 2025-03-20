@@ -61,6 +61,7 @@ export class AuthController {
   }
 
   @Post('forgot-password')
+  @ResponseMessage('Mât khẩu đã được đặt lại, vui lòng kiểm tra email.')
   @Public()
   async forgotPassword(@Body('email') email: string) {
     if (!email) {
@@ -68,13 +69,11 @@ export class AuthController {
     }
 
     await this.authService.forgotPassword(email);
-    return {
-      message:
-        'Email đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra hộp thư của bạn.',
-    };
+    return;
   }
 
   @Post('reset-password')
+  @ResponseMessage('Mật khẩu đã được đặt lại thành công.')
   @Public()
   async resetPassword(
     @Body('token') token: string,
