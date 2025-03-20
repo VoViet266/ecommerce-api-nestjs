@@ -22,7 +22,7 @@ import {
 } from 'src/decorator/customize';
 import { IUser } from 'src/user/interface/user.interface';
 import { RolesUser } from 'src/constant/roles.enum';
-import { PermissionsEnum } from 'src/constant/permissions.enum';
+import { PermissionsEnum } from 'src/constant/permission.enum';
 
 @Controller('api/v1/product')
 export class ProductController {
