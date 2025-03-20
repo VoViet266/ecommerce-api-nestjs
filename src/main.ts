@@ -41,7 +41,7 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   app.enableCors({
-    origin: configService.get<string>('URL_REACT'),
+    origin: configService.get<string>('URL_FRONTEND'),
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     preflightContinue: false,
     optionsSuccessStatus: 204,
