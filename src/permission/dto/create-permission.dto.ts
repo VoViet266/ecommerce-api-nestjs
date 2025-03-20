@@ -1,5 +1,5 @@
 import { IsEnum, IsString } from 'class-validator';
-import { PermissionsEnum } from 'src/constant/permissions.enum';
+import { PermissionsEnum } from 'src/constant/permission.enum';
 
 export class CreatePermissionDto {
   @IsEnum(PermissionsEnum, { message: 'Permission không hợp lệ' })

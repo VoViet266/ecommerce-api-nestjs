@@ -1,6 +1,6 @@
 import { SetMetadata } from '@nestjs/common';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { PermissionsEnum } from 'src/constant/permissions.enum';
+import { PermissionsEnum } from 'src/constant/permission.enum';
 import { RolesUser } from 'src/constant/roles.enum';
 
 // Define a custom decorator to mark a route as public
