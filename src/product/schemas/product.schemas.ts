@@ -113,8 +113,8 @@ export class Product {
   @Prop({ type: Number, default: 0 })
   discount: number;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Category.name })
-  categoryId: mongoose.Types.ObjectId;
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: Category.name })
+  categoryId: mongoose.Types.ObjectId[];
 
   @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: Brand.name })
   brandId: mongoose.Types.ObjectId[];
