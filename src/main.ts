@@ -44,6 +44,7 @@ async function bootstrap() {
     credentials: true,
   });
   await app.listen(configService.get<string>('PORT'));
+  console.log(`App running on: ${ configService.get<string>('URL_REACT_FRONTEND')}`)
   console.log(
     `Application is running on: ${configService.get<string>(
       'BASE_URL',
