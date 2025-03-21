@@ -23,10 +23,6 @@ async function bootstrap() {
   app.use(cookieParser());
   // Cần phải xác thực token mới cho phép truy cập vào các api khác
   const reflector = app.get(Reflector);
-  //jwtAuthGuard và RolesGuard sẽ được sử dụng cho tất cả các route
-  // jwtAuthGuard sẽ xác thực token
-  // RolesGuard sẽ xác thực role của user
-  //
   app.useGlobalGuards(
     new JwtAuthGuard(reflector),
     new RolesGuard(reflector),
@@ -41,14 +37,13 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   app.enableCors({
-    origin: configService.get<string>('URL_FRONTEND'),
+    origin: configService.get<string>('URL_REACT_FRONTEND'),
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     preflightContinue: false,
     optionsSuccessStatus: 204,
     credentials: true,
   });
   await app.listen(configService.get<string>('PORT'));
-  console.log(`Application is running on: ${await app.getUrl()}`);
   console.log(
     `Application is running on: ${configService.get<string>(
       'BASE_URL',
