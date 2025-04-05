@@ -165,10 +165,11 @@ export class AuthService {
 
       // Xóa và gán lại cookie refresh token
       res.clearCookie('refresh_Token');
+      console.log(process.env.NODE_ENV);
       res.cookie('refresh_Token', newRefreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production', // bật secure nếu là môi trường production
-        sameSite: 'strict',
+        sameSite: 'none',
         maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')),
       });
 
