@@ -1,6 +1,5 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { InjectConnection } from '@nestjs/mongoose';
-import mongoose, { Connection } from 'mongoose';
+import { Connection } from 'mongoose';
 import { softDeletePlugin } from 'soft-delete-plugin-mongoose';
 
 export const MongooseConfigService = {
@@ -13,8 +12,9 @@ export const MongooseConfigService = {
       autoIndex: true,
       connectionFactory: (connection: Connection) => {
         connection.plugin(softDeletePlugin);
-        connection.on('connected', () => console.log('connected'));
-        connection.on('open', () => console.log('open'));
+        connection.on('connected', () => console.log('Data connected'));
+        connection.on('disconnected', () => console.log('Data disconnected'));
+        connection.on('open', () => console.log('Data open'));
         return connection;
       },
     };

@@ -15,7 +15,6 @@ import { Public, ResponseMessage, Roles, User } from 'src/decorator/customize';
 import { IUser } from 'src/user/interface/user.interface';
 import { HttpExceptionFilter } from 'src/common/filter/http-exception.filter';
 
-
 @Controller('/api/v1/order')
 @UseFilters(HttpExceptionFilter)
 export class OrderController {
@@ -38,6 +37,13 @@ export class OrderController {
   @ResponseMessage('Lấy thông tin đơn hàng thành công')
   findOne(@Param('id') id: string) {
     return this.orderService.findOne(id);
+  }
+
+  @Get('user/:id')
+  @Public()
+  @ResponseMessage('Lấy thông tin đơn hàng của user thành công')
+  findOrderByUserId(@Param('id') id: string) {
+    return this.orderService.findOrdersByUserId(id);
   }
 
   @Patch(':id')

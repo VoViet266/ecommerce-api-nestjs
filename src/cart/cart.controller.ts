@@ -23,7 +23,6 @@ export class CartController {
   }
 
   @Get()
-  @Public()
   findAll() {
     return this.cartService.findAll();
   }

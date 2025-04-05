@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from 'src/user/users.service';
 import { JwtService } from '@nestjs/jwt';
@@ -31,12 +32,8 @@ export class AuthService {
   ) {}
 
   async validateUser(username: string, pass: string): Promise<any> {
-    const user = await (
-      await this.usersService.findOneByEmail(username)
-    ).populate({
-      path: 'roleID',
-      populate: { path: 'permissions' }, // Populate permissions trong role
-    });
+    const user = await this.usersService.findOneByEmail(username);
+
     if (user) {
       const isValid = this.usersService.isValidPassword(pass, user.password);
       if (isValid === true) {
@@ -115,77 +112,85 @@ export class AuthService {
     return refresh_Token;
   };
 
-  refreshToken = async (refresh_Token: string, res: Response) => {
+  refreshToken = async (refreshToken: string, res: Response) => {
     try {
-      this.jwtService.verify(refresh_Token, {
+      // Xác thực refresh token
+      this.jwtService.verify(refreshToken, {
         secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
       });
-      let user = await this.userService.findUser(refresh_Token);
-      if (user) {
-        const user_role = await (
-          await this.userService.findOne(user._id.toString())
-        ).populate({
-          path: 'roleID',
-          populate: {
-            path: 'permissions',
-          },
-        });
 
-        const roleName = user_role.roleID.map((role: any) => role.name);
-        const permission = user_role.roleID.flatMap((role: any) =>
-          role.permissions.map((per: any) => per.name),
-        );
+      // Tìm user theo refresh token
+      const user = await this.userService.findUserByRefreshToken(refreshToken);
+      if (!user) {
+        return null;
+      }
 
-        const payload = {
-          sub: 'token login',
-          iss: 'from server',
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          avatar: user.avatar,
-          role: {
-            roleName,
-            permission: permission,
-          },
-        };
+      // Lấy thông tin role và permission của user
+      const userWithRole = await (
+        await this.userService.findOne(user._id.toString())
+      ).populate({
+        path: 'roleID',
+        populate: {
+          path: 'permissions',
+        },
+      });
 
-        const refresh_Token = this.createRefreshToken({
-          payload,
-        });
+      const roleName = userWithRole.roleID.map((role: any) => role.name);
+      const permission = userWithRole.roleID.flatMap((role: any) =>
+        role.permissions.map((per: any) => per.name),
+      );
 
-        await this.userService.updateUserToken(
-          refresh_Token,
-          user._id.toString(),
-        );
+      // Tạo payload cho token
+      const payload = {
+        sub: 'token login',
+        iss: 'from server',
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        role: {
+          roleName,
+          permission,
+        },
+      };
 
-        res.clearCookie('refresh_Token');
+      // Tạo refresh token mới
+      const newRefreshToken = this.createRefreshToken({ payload });
 
-        res.cookie('refresh_Token', refresh_Token, {
-          httpOnly: true,
-          secure: false,
-          sameSite: 'strict',
-          maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')),
-        });
-        return {
-          access_token: this.jwtService.sign(payload),
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          avatar: user.avatar,
-          role: {
-            roleName,
-            permission: permission,
-          },
-        };
-      } else {
-        throw new BadRequestException(
-          'Refresh Token không hợp lệ, vui lòng đăng nhập lại!!!!',
+      // Lưu refresh token mới vào DB
+      await this.userService.updateUserToken(
+        newRefreshToken,
+        user._id.toString(),
+      );
+
+      // Xóa và gán lại cookie refresh token
+      res.clearCookie('refresh_Token');
+      res.cookie('refresh_Token', newRefreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // bật secure nếu là môi trường production
+        sameSite: 'strict',
+        maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')),
+      });
+
+      // Trả về access token mới và thông tin user
+      return {
+        access_token: this.jwtService.sign(payload),
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        role: {
+          roleName,
+          permission,
+        },
+      };
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        throw new UnauthorizedException(
+          'Refresh Token đã hết hạn. Đăng nhập lại.',
         );
       }
-    } catch (error) {
-      throw new BadRequestException(
-        'Refresh Token không hợp lệ, vui lòng đăng nhập lại ',
-      );
+      throw new BadRequestException('Refresh Token không hợp lệ.');
     }
   };
   async logout(res: Response, user: IUser) {

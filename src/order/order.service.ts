@@ -157,6 +157,37 @@ export class OrderService {
       .exec();
   }
 
+  //tìm đơn hàng theo  userId
+  async findOrdersByUserId(userId: string) {
+    const orders = await this.OrderModel.find({
+      userId,
+    })
+      .populate([
+        {
+          path: 'userId',
+          select: 'name email',
+        },
+        {
+          path: 'products.productId',
+          select: 'name variant images',
+        },
+      ])
+      .limit(10)
+      .exec();
+
+    if (!orders || orders.length === 0) {
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Không tìm thấy đơn hàng',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return orders;
+  }
+
   async update(id: string, updateOrderDto: UpdateOrderDto, user: IUser) {
     if (updateOrderDto.products) {
       let totalPrice = 0;

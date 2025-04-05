@@ -45,9 +45,7 @@ async function bootstrap() {
   });
   await app.listen(configService.get<string>('PORT'));
   console.log(
-    `Application is running on: ${configService.get<string>(
-      'BASE_URL',
-    )}${configService.get<string>('PORT')}`,
+    `Application is running on: ${configService.get<string>('PORT')}`,
   );
   if (module.hot) {
     module.hot.accept();
