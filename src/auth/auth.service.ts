@@ -79,7 +79,7 @@ export class AuthService {
     res.cookie('refresh_Token', refresh_Token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production', // bật secure nếu là môi trường production
-      sameSite: 'strict',
+      sameSite: 'none',
       maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')),
     });
     return {
