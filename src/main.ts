@@ -44,7 +44,10 @@ async function bootstrap() {
     credentials: true,
   });
   await app.listen(configService.get<string>('PORT'));
-  console.log(`App running on: ${ configService.get<string>('URL_REACT_FRONTEND')}`)
+  console.log(process.env.NODE_ENV);
+  console.log(
+    `App running on: ${configService.get<string>('URL_REACT_FRONTEND')}`,
+  );
   console.log(
     `Application is running on: ${configService.get<string>('PORT')}`,
   );
