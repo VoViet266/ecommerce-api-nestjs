@@ -11,3 +11,4 @@ services:
       MONGO_URI: mongodb+srv://VieDev:durNBv9YO1TvPvtJ@cluster0.h4trl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
       REDIS_HOST: redis-17023.c295.ap-southeast-1-1.ec2.redns.redis-cloud.com
       REDIS_PORT: 17023
+      NODE_ENV: production 
