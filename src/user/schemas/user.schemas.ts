@@ -25,7 +25,7 @@ export class User {
   @Prop()
   age: number;
 
-  @Prop()
+  @Prop({ type: String, enum: Gender })
   gender: Gender;
 
   @Prop()

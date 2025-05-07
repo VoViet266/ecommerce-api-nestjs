@@ -172,7 +172,6 @@ export class OrderService {
           select: 'name variant images',
         },
       ])
-      .limit(10)
       .exec();
 
     if (!orders || orders.length === 0) {

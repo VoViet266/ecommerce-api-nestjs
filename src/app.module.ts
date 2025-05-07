@@ -16,7 +16,8 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
 import { CloundinaryModule } from './cloundinary/cloundinary.module';
 import { MailModule } from './mail/mail.module';
-// import { MailModule } from './mail/mail.module';
+import { ChatbotModule } from './chatbot/chatbot.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -51,6 +52,9 @@ import { MailModule } from './mail/mail.module';
     CloundinaryModule,
     MongooseModule.forRootAsync(MongooseConfigService),
     MailModule,
+    ChatbotModule,
   ],
+  controllers: [AppController],
+  providers: [],
 })
 export class AppModule {}

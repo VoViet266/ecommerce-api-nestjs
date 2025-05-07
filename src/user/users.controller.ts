@@ -44,7 +44,7 @@ export class UsersController {
   }
 
   @Patch(':id')
-  // @Roles(RolesUser.Customer)
+  @Roles(RolesUser.Customer, RolesUser.Admin)
   @ResponseMessage('Cập nhật thông tin người dùng thành công')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     if (!mongoose.Types.ObjectId.isValid(id)) {

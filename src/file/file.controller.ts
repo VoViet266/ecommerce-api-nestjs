@@ -1,6 +1,6 @@
 import {
   Controller,
-  Post, 
+  Post,
   Param,
   Delete,
   UseInterceptors,
@@ -23,9 +23,7 @@ export class FileController {
   private readonly Base_URL: string;
   private readonly PORT: string;
 
-  constructor(
-    private readonly configService: ConfigService,
-  ) {
+  constructor(private readonly configService: ConfigService) {
     this.Base_URL = this.configService.get<string>('BASE_URL');
     this.PORT = this.configService.get<string>('PORT');
   }

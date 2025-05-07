@@ -7,17 +7,17 @@ import {
 import { UsersService } from 'src/user/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { IUser } from 'src/user/interface/user.interface';
-import { CreateUserDto, RegisterUserDto } from 'src/user/dto/create-user.dto';
+import {RegisterUserDto } from 'src/user/dto/create-user.dto';
 import { ConfigService } from '@nestjs/config';
 import ms from 'ms';
 import { Response } from 'express';
 import { MailService } from 'src/mail/mail.service';
 import { randomBytes, randomUUID } from 'crypto';
-import { UpdateUserDto } from 'src/user/dto/update-user.dto';
+
 import { InjectModel } from '@nestjs/mongoose';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { UserDocument, User } from 'src/user/schemas/user.schemas';
-import { v4 as uuidv4 } from 'uuid';
+
 
 @Injectable()
 export class AuthService {
@@ -75,11 +75,14 @@ export class AuthService {
     });
 
     await this.userService.updateUserToken(refresh_Token, _id);
-
+    console.log(process.env.NODE_ENV);
     res.cookie('refresh_Token', refresh_Token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production', // bật secure nếu là môi trường production
-      sameSite: 'none',
+      sameSite:
+      this.configService.get<string>('NODE_ENV') === 'production'
+        ? 'none'
+        : 'strict', // bật sameSite nếu là môi trường production
       maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')),
     });
     return {
@@ -169,7 +172,10 @@ export class AuthService {
       res.cookie('refresh_Token', newRefreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production', // bật secure nếu là môi trường production
-        sameSite: 'none',
+        sameSite:
+          this.configService.get<string>('NODE_ENV') === 'production'
+            ? 'none'
+            : 'strict',
         maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')),
       });
 

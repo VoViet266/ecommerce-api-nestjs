@@ -1,4 +1,5 @@
 import { NestFactory, Reflector } from '@nestjs/core';
+
 import { AppModule } from './app.module';
 import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -12,7 +13,6 @@ import { ValidationPipe, BadRequestException } from '@nestjs/common';
 import { HttpExceptionFilter } from './common/filter/http-exception.filter';
 import { PermissionsGuard } from './common/guards/permission.guard';
 
-declare const module: any;
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
@@ -28,7 +28,6 @@ async function bootstrap() {
     new RolesGuard(reflector),
     new PermissionsGuard(reflector),
   );
-
   app.use(express.json()); // Giải mã JSON
   app.use(express.urlencoded({ extended: true })); // Giải mã x-www-form-urlencoded
   app.useGlobalPipes(new ValidationPipe());
@@ -44,16 +43,13 @@ async function bootstrap() {
     credentials: true,
   });
   await app.listen(configService.get<string>('PORT'));
-  console.log(process.env.NODE_ENV);
-  console.log(
-    `App running on: ${configService.get<string>('URL_REACT_FRONTEND')}`,
-  );
   console.log(
     `Application is running on: ${configService.get<string>('PORT')}`,
   );
-  if (module.hot) {
-    module.hot.accept();
-    module.hot.dispose(() => app.close());
-  }
 }
 bootstrap();
+declare const module: any;
+if (module.hot) {
+  module.hot.accept();
+  module.hot.dispose(() => process.exit(0));
+}

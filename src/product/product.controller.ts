@@ -73,7 +73,7 @@ export class ProductController {
 
   @Delete(':id')
   @ResponseMessage('Đã xóa sản phẩm thành công')
-  @Permissions(PermissionsEnum.DELETE_PRODUCT)
+  // @Permissions(PermissionsEnum.DELETE_PRODUCT)
   remove(@Param('id') id: string) {
     this.productService.remove(id);
     return { message: 'Xóa sản phẩm thành công' };

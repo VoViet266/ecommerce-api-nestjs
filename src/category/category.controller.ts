@@ -15,10 +15,13 @@ import {
   Permissions,
   Public,
   ResponseMessage,
+  Roles,
   User,
 } from 'src/decorator/customize';
 import { IUser } from 'src/user/interface/user.interface';
 import { PermissionsEnum } from 'src/constant/permission.enum';
+import { Role } from 'src/role/Schemas/role.schemas';
+import { RolesUser } from 'src/constant/roles.enum';
 
 @Controller('api/v1/category')
 export class CategoryController {
@@ -48,9 +51,8 @@ export class CategoryController {
   }
 
   @Patch(':id')
-  @Permissions(PermissionsEnum.UPDATE_CATEGORY)
   @ResponseMessage('Cập nhật danh mục thành công')
-  @Permissions(PermissionsEnum.UPDATE_CATEGORY)
+  @Roles(RolesUser.Admin)
   update(
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
